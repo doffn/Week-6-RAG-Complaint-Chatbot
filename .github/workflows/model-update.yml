@@ -1,0 +1,133 @@
+name: Model Update Pipeline
+
+on:
+  schedule:
+    # Run monthly to check for model updates
+    - cron: '0 0 1 * *'
+  workflow_dispatch:
+    inputs:
+      force_update:
+        description: 'Force model update'
+        required: false
+        default: 'false'
+
+jobs:
+  check-model-updates:
+    runs-on: ubuntu-latest
+    outputs:
+      update_needed: ${{ steps.check.outputs.update_needed }}
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.9
+    
+    - name: Install dependencies
+      run: |
+        pip install sentence-transformers requests
+    
+    - name: Check for model updates
+      id: check
+      run: |
+        python -c "
+        import requests
+        import json
+        from sentence_transformers import SentenceTransformer
+        
+        # Check current model version
+        model_name = 'sentence-transformers/all-MiniLM-L6-v2'
+        
+        try:
+            # Get model info from Hugging Face API
+            response = requests.get(f'https://huggingface.co/api/models/{model_name}')
+            model_info = response.json()
+            
+            # Check if update is needed (simplified check)
+            update_needed = '${{ github.event.inputs.force_update }}' == 'true'
+            
+            print(f'Model: {model_name}')
+            print(f'Update needed: {update_needed}')
+            print(f'::set-output name=update_needed::{str(update_needed).lower()}')
+            
+        except Exception as e:
+            print(f'Error checking model updates: {e}')
+            print('::set-output name=update_needed::false')
+        "
+
+  update-model:
+    needs: check-model-updates
+    if: needs.check-model-updates.outputs.update_needed == 'true'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.9
+    
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+    
+    - name: Download updated model
+      run: |
+        python -c "
+        from sentence_transformers import SentenceTransformer
+        print('Downloading updated model...')
+        model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+        print('Model updated successfully')
+        "
+    
+    - name: Run validation tests
+      run: |
+        python -c "
+        from sentence_transformers import SentenceTransformer
+        import numpy as np
+        
+        model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+        
+        # Test embedding generation
+        test_texts = [
+            'This is a test complaint about billing issues',
+            'Customer service was unhelpful and slow',
+            'Unauthorized charges appeared on my account'
+        ]
+        
+        embeddings = model.encode(test_texts)
+        
+        # Validate embeddings
+        assert embeddings.shape[0] == len(test_texts), 'Embedding count mismatch'
+        assert embeddings.shape[1] == 384, 'Embedding dimension mismatch'
+        assert not np.isnan(embeddings).any(), 'NaN values in embeddings'
+        
+        print('✅ Model validation passed')
+        "
+    
+    - name: Create pull request
+      if: success()
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: "Update embedding model"
+        title: "Automated Model Update"
+        body: |
+          ## Model Update
+          
+          This PR contains an automated update to the embedding model.
+          
+          ### Changes:
+          - Updated sentence-transformers model
+          - Validated model functionality
+          
+          ### Testing:
+          - ✅ Model download successful
+          - ✅ Embedding generation validated
+          - ✅ Dimension consistency verified
+          
+          Please review and merge if tests pass.
+        branch: model-update-${{ github.run_number }}

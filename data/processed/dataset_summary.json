@@ -1,0 +1,23 @@
+{
+  "total_records": 426490,
+  "products": [
+    "Credit card",
+    "Checking or savings account",
+    "Money transfer, virtual currency, or money service",
+    "Credit card or prepaid card",
+    "Money transfers"
+  ],
+  "avg_word_count": 206.72736523716853,
+  "median_word_count": 138.0,
+  "date_range": {
+    "start": "2015-03-19 00:00:00",
+    "end": "2025-06-15 00:00:00"
+  },
+  "product_distribution": {
+    "Checking or savings account": 139513,
+    "Credit card or prepaid card": 108292,
+    "Money transfer, virtual currency, or money service": 96837,
+    "Credit card": 80354,
+    "Money transfers": 1494
+  }
+}
