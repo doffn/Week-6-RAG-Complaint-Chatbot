@@ -141,7 +141,7 @@ The system includes comprehensive evaluation capabilities:
 
 ## 📁 Project Structure
 
-\`\`\`
+```
 rag-complaint-chatbot/
 ├── src/
 │   ├── data_processor.py      # Data cleaning and preprocessing
@@ -161,7 +161,7 @@ rag-complaint-chatbot/
 ├── app.py                   # Main Gradio application
 ├── requirements.txt
 └── README.md
-\`\`\`
+```
 
 ## 🎯 Business Impact
 
