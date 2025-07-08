@@ -213,26 +213,3 @@ rag-complaint-chatbot/
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🙏 Acknowledgments
-
-- **Consumer Financial Protection Bureau (CFPB)** for providing the complaint dataset
-- **Sentence Transformers** for embedding models
-- **ChromaDB** for vector storage
-- **Gradio** for the web interface
-- **Hugging Face** for transformer models
-
-## 📞 Support
-
-For questions or issues:
-
-1. Check the documentation
-2. Review existing issues
-3. Create a new issue with detailed information
-4. Contact the development team
-
----
-
-**Built with ❤️ for CrediTrust Financial**
-
-*Transforming customer feedback into actionable insights through AI*
-# Week-6-RAG-Complaint-Chatbot
